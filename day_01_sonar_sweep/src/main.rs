@@ -1,5 +1,6 @@
 use std::fs::File;
 use std::io::{prelude::*, BufReader};
+use std::os::raw;
 use std::path::Path;
 struct Sonar {
     previous_measurement: isize,
@@ -14,13 +15,13 @@ impl Sonar {
         }
     }
 
-    fn analyze_depth(mut self, measurement: isize) -> Sonar {
-        if measurement > self.previous_measurement {
+    fn analyze_depth(mut self, measurement: &isize) -> Sonar {
+        if *measurement > self.previous_measurement {
             // depth is greater!
             self.num_depth_increments += 1;
         }
 
-        self.previous_measurement = measurement;
+        self.previous_measurement = *measurement;
         return self
     }
 }
@@ -38,19 +39,26 @@ fn main() {
     let file = File::open(measurements_path).unwrap();
     let reader = BufReader::new(file);
 
+    // Parse input into a vector of integers 
     let measurements = reader
         .lines()
-        .map(|line| line.unwrap().parse::<isize>().unwrap());
+        .map(|line| line.unwrap().parse::<isize>().unwrap())
+        .collect::<Vec<isize>>();
+
+    // Part 1
+    let raw_sonar = measurements
+        .iter()
+        .fold(Sonar::new(), |sonar: Sonar, v: &isize | sonar.analyze_depth(&v));
+
+    println!("Number of depth increments:");
+    println!("  raw: {}", raw_sonar.num_depth_increments);
 
     // Part 2: Denoise 
-    // Easily comment our this section for part 1 results
-    let measurements = measurements.collect::<Vec<isize>>();
-    let measurements = measurements
+    let measurements = measurements 
         .iter()
         .enumerate()
         .map(|(idx, measurement)| denoise(&measurements, idx, measurement));
 
-    let sonar = measurements.fold(Sonar::new(), Sonar::analyze_depth);
-
-    println!("The depth increased {} times!", sonar.num_depth_increments)
+    let denoised_sonar = measurements.fold(Sonar::new(), |sonar, v| sonar.analyze_depth(&v));
+    println!("  denoised: {}", denoised_sonar.num_depth_increments);
 }
