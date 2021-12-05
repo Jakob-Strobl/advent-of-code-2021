@@ -1,6 +1,5 @@
 use std::fs::File;
 use std::io::{prelude::*, BufReader};
-use std::os::raw;
 use std::path::Path;
 struct Sonar {
     previous_measurement: isize,
