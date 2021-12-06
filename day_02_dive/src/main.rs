@@ -2,6 +2,7 @@ use std::fs::File;
 use std::io::{prelude::*, BufReader};
 use std::path::Path;
 
+#[allow(non_camel_case_types)]
 type unit = usize;
 
 #[derive(Debug)]
@@ -18,7 +19,7 @@ impl From<&str> for Command {
 
         let direction = command.next().expect("Expected a direction. Found none.");
         let amount = command.next().expect("Expected a unit of travel after a direction.");
-        let amount = amount.parse::<usize>().expect("Expected the unit of travel to be a positive integer.");
+        let amount = amount.parse::<unit>().expect("Expected the unit of travel to be a positive integer.");
 
         let command = match direction {
             "up" => Command::Up(amount),
@@ -34,6 +35,7 @@ impl From<&str> for Command {
 struct Position {
     horizontal: unit,
     depth: unit,
+    aim: unit,
 }
 
 impl Position {
@@ -41,14 +43,18 @@ impl Position {
         Position { 
             horizontal: 0,
             depth: 0,
+            aim: 0,
         }
     }
 
     fn apply_command(&mut self, command: Command) {
         match command {
-            Command::Up(dist) => self.depth -= dist,
-            Command::Down(dist) => self.depth += dist,
-            Command::Forward(dist) => self.horizontal += dist,
+            Command::Up(amount) => self.aim -= amount,
+            Command::Down(amount) => self.aim += amount,
+            Command::Forward(amount) => {
+                self.horizontal += amount;
+                self.depth += amount * self.aim;
+            },
         }
     }
 }
