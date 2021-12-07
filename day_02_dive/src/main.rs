@@ -60,11 +60,11 @@ impl Position {
 }
 
 fn main() {
-    // Get the file of measurements. 
+    // Get the input from a file. 
     // Far from a reasonable use of a build script, but I wanted to see if I could.
     let out_dir = Path::new(env!("OUT_DIR"));
-    let measurements_path = out_dir.join("commands.txt");
-    let file = File::open(measurements_path).unwrap();
+    let commands_path = out_dir.join("commands.txt");
+    let file = File::open(commands_path).unwrap();
     let reader = BufReader::new(file);
 
     let commands = reader
